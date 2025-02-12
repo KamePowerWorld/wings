@@ -87,6 +87,11 @@ func LocalPath(uuid string, name string, server string) string {
 		}
 	}
 
+	// server の最初の8桁 (ハイフンまで) を取得
+	if len(server) > 8 {
+		server = server[:8]
+	}
+
 	// 「サーバー名～～」フォルダがあればそれを使用、ない場合「サーバー名」をフォルダ名として使用する
 	serverDir := path.Join(backupDir, server+"*")
 	{
