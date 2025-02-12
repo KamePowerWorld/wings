@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path"
 	"strconv"
 	"time"
 
@@ -32,8 +33,14 @@ func NewS3(client remote.Client, uuid string, ignore string) *S3Backup {
 			Uuid:    uuid,
 			Ignore:  ignore,
 			adapter: S3BackupAdapter,
+			path:    S3Path(uuid),
 		},
 	}
+}
+
+// S3Path returns the path on the disk where the backup will be stored.
+func S3Path(uuid string) string {
+	return path.Join(config.Get().System.BackupDirectory, uuid+".tar.gz")
 }
 
 // Remove removes a backup from the system.

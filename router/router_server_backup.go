@@ -24,6 +24,7 @@ func postServerBackup(c *gin.Context) {
 		Adapter backup.AdapterType `json:"adapter"`
 		Uuid    string             `json:"uuid"`
 		Ignore  string             `json:"ignore"`
+		Name	string             `json:"name"`
 	}
 	if err := c.BindJSON(&data); err != nil {
 		return
@@ -32,7 +33,7 @@ func postServerBackup(c *gin.Context) {
 	var adapter backup.BackupInterface
 	switch data.Adapter {
 	case backup.LocalBackupAdapter:
-		adapter = backup.NewLocal(client, data.Uuid, data.Ignore)
+		adapter = backup.NewLocal(client, data.Uuid, data.Ignore, data.Name, s.ID())
 	case backup.S3BackupAdapter:
 		adapter = backup.NewS3(client, data.Uuid, data.Ignore)
 	default:
@@ -107,7 +108,7 @@ func postServerRestoreBackup(c *gin.Context) {
 	// Now that we've cleaned up the data directory if necessary, grab the backup file
 	// and attempt to restore it into the server directory.
 	if data.Adapter == backup.LocalBackupAdapter {
-		b, _, err := backup.LocateLocal(client, c.Param("backup"))
+		b, _, err := backup.LocateLocal(client, c.Param("backup"), s.ID())
 		if err != nil {
 			middleware.CaptureAndAbort(c, err)
 			return
@@ -176,7 +177,9 @@ func postServerRestoreBackup(c *gin.Context) {
 // endpoint can make its own decisions as to how it wants to handle that
 // response.
 func deleteServerBackup(c *gin.Context) {
-	b, _, err := backup.LocateLocal(middleware.ExtractApiClient(c), c.Param("backup"))
+	s := middleware.ExtractServer(c)
+
+	b, _, err := backup.LocateLocal(middleware.ExtractApiClient(c), c.Param("backup"), s.ID())
 	if err != nil {
 		// Just return from the function at this point if the backup was not located.
 		if errors.Is(err, os.ErrNotExist) {

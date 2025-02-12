@@ -7,14 +7,12 @@ import (
 	"io"
 	"io/fs"
 	"os"
-	"path"
 
 	"emperror.dev/errors"
 	"github.com/apex/log"
 	"github.com/mholt/archives"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/pterodactyl/wings/config"
 	"github.com/pterodactyl/wings/remote"
 	"github.com/pterodactyl/wings/server/filesystem"
 )
@@ -81,6 +79,9 @@ type Backup struct {
 	client     remote.Client
 	adapter    AdapterType
 	logContext map[string]interface{}
+
+	// Path for this specific backup.
+	path string
 }
 
 func (b *Backup) SetClient(c remote.Client) {
@@ -93,7 +94,7 @@ func (b *Backup) Identifier() string {
 
 // Path returns the path for this specific backup.
 func (b *Backup) Path() string {
-	return path.Join(config.Get().System.BackupDirectory, b.Identifier()+".tar.gz")
+	return b.path
 }
 
 // Size returns the size of the generated backup.
