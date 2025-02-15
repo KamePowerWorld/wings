@@ -109,9 +109,13 @@ func LocalPath(uuid string, name string, server string) string {
 			}
 		}
 	}
+	// Glob用に [] をエスケープ
+	serverDirPattern := serverDir
+	serverDirPattern = strings.ReplaceAll(serverDirPattern, "[", "\\[")
+	serverDirPattern = strings.ReplaceAll(serverDirPattern, "]", "\\]")
 
 	// 「UUID～～.tar.gz」ファイルがあればそれを使用、ない場合「UUID_.tar.gz」をファイル名として使用する
-	filePath := path.Join(serverDir, uuid+"*.tar.gz")
+	filePath := path.Join(serverDirPattern, uuid+"*.tar.gz")
 	{
 		matches, err := filepath.Glob(filePath)
 		if err == nil && len(matches) > 0 {
