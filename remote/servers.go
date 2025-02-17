@@ -211,3 +211,13 @@ func (c *client) getServersPaged(ctx context.Context, page, limit int) ([]RawSer
 	}
 	return r.Data, r.Meta, nil
 }
+
+// バックアップが必要な場合、フラグを立てます
+func (c *client) SetNeedsBackup(ctx context.Context, uuid string) error {
+	resp, err := c.Get(ctx, fmt.Sprintf("/servers/%s/needs_backup", uuid), nil)
+	if err != nil {
+		return err
+	}
+	_ = resp.Body.Close()
+	return nil
+}

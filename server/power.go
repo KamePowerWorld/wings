@@ -214,6 +214,9 @@ func (s *Server) onBeforeStart() error {
 		}
 	}
 
+	// バックアップ必要フラグを立てる
+	s.client.SetNeedsBackup(s.Context(), s.Id())
+
 	s.Log().Info("completed server preflight, starting boot process...")
 	return nil
 }
